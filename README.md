@@ -61,6 +61,11 @@ hbase.test.d.columns=d1,d2
 
 * [Download and install Confluent](http://www.confluent.io/)
 
+* Add hbase-site.xml to hbase-sink.jar classpath 
+```bash
+			jar -uvf <hbase-sink.jar> hbase-site.xml
+```
+
 * Copy hbase-sink.jar and hbase-sink.properties from the project build location to `$CONFLUENT_HOME/share/java/kafka-connect-hbase`
 
 ```bash
