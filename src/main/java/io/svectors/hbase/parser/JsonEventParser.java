@@ -95,7 +95,7 @@ public class JsonEventParser implements EventParser {
 				if (schema != null) {
 					valueBytes = keyConverter.fromConnectData(topic, schema, value);
 				} else {
-					valueBytes = keyConverter.fromConnectData(topic, null, value.toString());
+					valueBytes = keyConverter.fromConnectData(topic, null, value);
 				}
 			} else {
 				if (schema != null) {
@@ -110,7 +110,6 @@ public class JsonEventParser implements EventParser {
 			}
 
 			final JsonNode valueNode = JSON_READER.readValue(valueBytes);
-
 			if (schema != null) {
 				final Map<String, Object> keyValues = OBJECT_MAPPER.convertValue(valueNode,
 						new TypeReference<Map<String, Object>>() {
