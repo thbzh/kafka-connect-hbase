@@ -18,7 +18,6 @@
 package io.svectors.hbase.parser;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,25 +28,27 @@ import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.sink.SinkRecord;
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.base.Preconditions;
 
 /**
  * Parses a json event.
  * 
- * @author ravi.magham
  */
 public class JsonEventParser implements EventParser {
 
 	private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private final static ObjectReader JSON_READER = OBJECT_MAPPER.reader(JsonNode.class);
-
+	private JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 	private final JsonConverter keyConverter;
 	private final JsonConverter valueConverter;
+	static Logger logger = Logger.getLogger(JsonEventParser.class);
 
 	/**
 	 * default c.tor
@@ -67,7 +68,6 @@ public class JsonEventParser implements EventParser {
 	@Override
 	public Map<String, byte[]> parseKey(SinkRecord sr) throws EventParsingException {
 		// return this.parse(sr.topic(), sr.keySchema(), sr.key(), true);
-		System.out.println(sr.key());
 		return this.parse(sr.topic(), null, sr.key(), true);
 
 	}
@@ -105,16 +105,19 @@ public class JsonEventParser implements EventParser {
 				}
 
 			}
+			JsonNode valueNode = jsonNodeFactory.objectNode();
+
+			Map<String, Object> keyValues;
 			if (valueBytes == null || valueBytes.length == 0) {
-				return Collections.emptyMap();
+				keyValues = OBJECT_MAPPER.convertValue(valueNode, new TypeReference<Map<String, Object>>() {
+				});
+
+			} else {
+				valueNode = JSON_READER.readValue(valueBytes);
 			}
-
-			final JsonNode valueNode = JSON_READER.readValue(valueBytes);
 			if (schema != null) {
-				final Map<String, Object> keyValues = OBJECT_MAPPER.convertValue(valueNode,
-						new TypeReference<Map<String, Object>>() {
-
-						});
+				keyValues = OBJECT_MAPPER.convertValue(valueNode, new TypeReference<Map<String, Object>>() {
+				});
 				final List<Field> fields = schema.fields();
 				for (Field field : fields) {
 					final byte[] fieldValue = toValue(keyValues, field);
@@ -123,9 +126,17 @@ public class JsonEventParser implements EventParser {
 					}
 					values.put(field.name(), fieldValue);
 				}
+			} else {
+				keyValues = OBJECT_MAPPER.convertValue(valueNode, new TypeReference<Map<String, Object>>() {
+
+				});
+				keyValues.entrySet().forEach(entry -> {
+					values.put(entry.getKey(), toValue(entry.getValue()));
+				});
 			}
 			return values;
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			final String errorMsg = String.format("Failed to parse the schema [%s] , value [%s] with ex [%s]", schema,
 					value, ex.getMessage());
 			throw new EventParsingException(errorMsg, ex);
@@ -133,7 +144,7 @@ public class JsonEventParser implements EventParser {
 	}
 
 	/**
-	 *
+	 *  Convert value to byte values based on the Schema field type
 	 * @param keyValues
 	 * @param field
 	 * @return
@@ -161,6 +172,37 @@ public class JsonEventParser implements EventParser {
 		case INT32:
 			return Bytes.toBytes((Integer) fieldValue);
 		case INT64:
+			return Bytes.toBytes((Long) fieldValue);
+		// case MAP:
+		// return Bytes.toBytes(new JSONObject((Map)fieldValue).toString());
+		default:
+			return null;
+		}
+	}
+
+	/**
+	 * Get value based on the instance type and convert to bytes
+	 * @param fieldValue
+	 * @return
+	 */
+	private byte[] toValue(Object fieldValue) {
+		Preconditions.checkNotNull(fieldValue);
+		Class<?> clazz = fieldValue.getClass();
+		String type = clazz.getSimpleName().toUpperCase();
+		switch (type) {
+		case "STRING":
+			return Bytes.toBytes((String) fieldValue);
+		case "BOOLEAN":
+			return Bytes.toBytes((Boolean) fieldValue);
+		case "BYTES":
+			return Bytes.toBytes((ByteBuffer) fieldValue);
+		case "FLOAT":
+			return Bytes.toBytes((Float) fieldValue);
+		case "SHORT":
+			return Bytes.toBytes((Short) fieldValue);
+		case "INTEGER":
+			return Bytes.toBytes((Integer) fieldValue);
+		case "LONG":
 			return Bytes.toBytes((Long) fieldValue);
 		// case MAP:
 		// return Bytes.toBytes(new JSONObject((Map)fieldValue).toString());

@@ -28,6 +28,11 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +40,8 @@ import java.util.Map;
  * @author ravi.magham
  */
 public class TestToPutFunction {
+	private final static JsonNodeFactory  jsonNodeFactory = JsonNodeFactory.instance;
+	private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Test
     public void testRowkey() {
@@ -61,5 +68,29 @@ public class TestToPutFunction {
         final SinkRecord sinkRecord = new SinkRecord("test", 0, null, null, schema, record, 0);
         final Put put =  toPutFunction.apply(sinkRecord);
         Assert.assertEquals(123456, Bytes.toInt(put.getRow()));
+    }
+    
+    @Test
+    public void testRowkeyWithoutValueSchema() {
+        final Map<String, String> configProps = new HashMap<>();
+        configProps.put(HBaseSinkConfig.ZOOKEEPER_QUORUM_CONFIG, "localhost");
+        configProps.put("hbase.test.rowkey.columns", "id");
+        configProps.put("hbase.test.d.columns", "d1,d2");
+        configProps.put(HBaseSinkConfig.EVENT_PARSER_CONFIG, JsonEventParser.class.getName());
+        final ToPutFunction toPutFunction = new ToPutFunction(new HBaseSinkConfig(configProps));
+        final ObjectNode record = jsonNodeFactory.objectNode();
+        
+        record.put("url", "google.com")
+          .put("id", 111)
+          .put("zipcode", 95051)
+          .put("status", true);
+
+    	final Map<String, Object> keyValues = OBJECT_MAPPER.convertValue(record,
+				new TypeReference<Map<String, Object>>() {
+
+				});
+        final SinkRecord sinkRecord = new SinkRecord("test", 0, null, null, null, keyValues, 0);
+        final Put put =  toPutFunction.apply(sinkRecord);
+        Assert.assertEquals(111, Bytes.toInt(put.getRow()));
     }
 }
