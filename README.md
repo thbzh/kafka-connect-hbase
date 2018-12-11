@@ -105,3 +105,22 @@ $CONFLUENT_HOME/bin/kafka-avro-console-producer \
 {"id": 1, "name": "foo"}
 {"id": 2, "name": "bar"}
 ```
+
+Same can be run with Apache Kafka scripts. 
+
+`$KAFKA_HOME/bin/connect-standalone.sh config/connect-standalone.properties config/hbase-sink.properties`
+
+* For JSON data, use JSONConverter in connect-standalone.properties file. If key and value contain schema and payload, set schema.enable to `true`, else `false`. 
+
+Example data [with schema] : 
+  
+`
+{"schema":{"type":"struct","fields":[{"type":"string","optional":false,"field":"firstName"},{"type":"string","optional":false,"field":"lastName"},{"type":"string","optional":false,"field":"email"},{"type":"int32","optional":false,"field":"age"},{"type":"int32","optional":false,"field":"weightInKgs"}],"optional":false,"name":"Person"},"payload":{"firstName":"Jan","lastName":"Peter","email":"eric.cartman@southpark.com","age":10,"weightInKgs":40}}
+`
+
+  [without schema]:
+ 
+ `{"firstName":"Jan","lastName":"Peter","email":"eric.cartman@southpark.com","age":10,"weightInKgs":40}`
+ 
+
+
