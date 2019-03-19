@@ -14,17 +14,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author ravi.magham
- */
+
 public class AvroEventParser implements EventParser {
 
     private final static AvroData avroData = new AvroData(100);
     private final Map<String, byte[]> EMPTY_MAP = Collections.emptyMap();
 
-    /**
-     * default c.tor
-     */
+  
     public AvroEventParser() {
     }
 

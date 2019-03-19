@@ -29,8 +29,8 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.log4j.Logger;
-
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -54,6 +54,7 @@ public class JsonEventParser implements EventParser {
 	 * default c.tor
 	 */
 	public JsonEventParser() {
+		OBJECT_MAPPER.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 		this.keyConverter = new JsonConverter();
 		this.valueConverter = new JsonConverter();
 
@@ -107,7 +108,7 @@ public class JsonEventParser implements EventParser {
 			}
 			JsonNode valueNode = jsonNodeFactory.objectNode();
 
-			Map<String, Object> keyValues;
+			Map<String, Object> keyValues = new HashMap<>();
 			if (valueBytes == null || valueBytes.length == 0) {
 				keyValues = OBJECT_MAPPER.convertValue(valueNode, new TypeReference<Map<String, Object>>() {
 				});
@@ -127,9 +128,12 @@ public class JsonEventParser implements EventParser {
 					values.put(field.name(), fieldValue);
 				}
 			} else {
-				keyValues = OBJECT_MAPPER.convertValue(valueNode, new TypeReference<Map<String, Object>>() {
+				 
+				if (!valueNode.isTextual()) {
+					keyValues = OBJECT_MAPPER.convertValue(valueNode, new TypeReference<Map<String, Object>>() {
 
-				});
+					});
+				}
 				keyValues.entrySet().forEach(entry -> {
 					values.put(entry.getKey(), toValue(entry.getValue()));
 				});
@@ -144,7 +148,8 @@ public class JsonEventParser implements EventParser {
 	}
 
 	/**
-	 *  Convert value to byte values based on the Schema field type
+	 * Convert value to byte values based on the Schema field type
+	 * 
 	 * @param keyValues
 	 * @param field
 	 * @return
@@ -182,6 +187,7 @@ public class JsonEventParser implements EventParser {
 
 	/**
 	 * Get value based on the instance type and convert to bytes
+	 * 
 	 * @param fieldValue
 	 * @return
 	 */

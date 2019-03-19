@@ -21,9 +21,7 @@ import org.apache.kafka.connect.sink.SinkRecord;
 
 import java.util.Map;
 
-/**
- * @author ravi.magham
- */
+ 
 public interface EventParser {
 
     /**

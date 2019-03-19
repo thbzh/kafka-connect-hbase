@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -40,11 +41,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hbase.version>1.4.0</hbase.version>
 		<hadoop.version>2.6.0</hadoop.version>
-		<kafka.version>1.0.0</kafka.version>
+		<kafka.version>2.0.0</kafka.version>
 		<junit.version>4.11</junit.version>
 		<hadoop.mvn.version>2.7.1</hadoop.mvn.version>
 		<guava.version>16.0</guava.version>
-		<confluent.version>4.0.0</confluent.version>
+		<confluent.version>5.0.0</confluent.version>
 		<confluent.connect.plugin.version>0.11.1</confluent.connect.plugin.version>
 
 	</properties>
@@ -120,6 +121,7 @@
 			<artifactId>hbase-common</artifactId>
 			<version>${hbase.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-testing-util</artifactId>
@@ -209,35 +211,36 @@
 					</execution>
 				</executions>
 			</plugin>
-			   <plugin>
-                <groupId>io.confluent</groupId>
-                <artifactId>kafka-connect-maven-plugin</artifactId>
-                <version>${confluent.connect.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>kafka-connect</goal>
-                        </goals>
-                        <configuration>
-                            <title>Kafka Connect HBase Sink</title>
-                            <documentationUrl>https://github.com/nishutayal/kafka-connect-hbase/blob/master/README.md</documentationUrl>
-                            <description>It's a basic Apache Kafka Connect SinkConnector which allows moving data from Kafka topics into HBase tables.</description>
-                            <ownerUsername>nishutayal</ownerUsername>
-                            <ownerName>Nishu Tayal</ownerName>
-                            <supportProviderName>Open Source Community</supportProviderName>
-                            <supportSummary>Support provided through community involvement.</supportSummary>
-                            <supportUrl>${pom.issueManagement.url}</supportUrl>
-                            <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
-                            <componentTypes>
-                                <componentType>sink</componentType>
-                            </componentTypes>
-                            <tags>
-                                <tag>hbase</tag>
-                            </tags>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>io.confluent</groupId>
+				<artifactId>kafka-connect-maven-plugin</artifactId>
+				<version>${confluent.connect.plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>kafka-connect</goal>
+						</goals>
+						<configuration>
+							<title>Kafka Connect HBase Sink</title>
+							<documentationUrl>https://github.com/nishutayal/kafka-connect-hbase/blob/master/README.md</documentationUrl>
+							<description>It's a basic Apache Kafka Connect SinkConnector
+								which allows moving data from Kafka topics into HBase tables.</description>
+							<ownerUsername>nishutayal</ownerUsername>
+							<ownerName>Nishu Tayal</ownerName>
+							<supportProviderName>Open Source Community</supportProviderName>
+							<supportSummary>Support provided through community involvement.</supportSummary>
+							<supportUrl>${pom.issueManagement.url}</supportUrl>
+							<confluentControlCenterIntegration>true</confluentControlCenterIntegration>
+							<componentTypes>
+								<componentType>sink</componentType>
+							</componentTypes>
+							<tags>
+								<tag>hbase</tag>
+							</tags>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

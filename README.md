@@ -19,7 +19,7 @@ Sink supports:
 ## Assumptions
 * The HBase table already exists.
 * Column Families are already created in HBase table
-* Each Kafka topic is mapped to a HBase table.
+* Each Kafka topic is mapped to a HBase table. (In version 1.0.1. implementation is changed- It requires `hbase.table.name` property to be set.)
 
 
 ## Properties
@@ -31,9 +31,11 @@ name | data type | required | description
 zookeeper.quorum | string | yes | Zookeeper quorum of the HBase cluster
 event.parser.class | string | yes | Can be either AvroEventParser or JsonEventParser to parse avro or json events respectively.
 topics | string | yes | list of kafka topics.
-hbase.`<topicname>`.rowkey.columns | string | yes | The columns that represent the rowkey of the hbase table `<topicname>`
-hbase.`<topicname>`.family | string | yes | Comma seperated column families of the hbase table `<topicname>`. It can be one or more than one
-hbase.`<topicname>`.`<columnfamily>`.columns | string | No | Required only if more than one column family are defined in previous configuration. Column names are comma seperated`. It can be one or more than one
+hbase.table.name | string | yes | name of hbase table
+
+hbase.`<tablename>`.rowkey.columns | string | yes | The columns that represent the rowkey of the hbase table `<tablename>`
+hbase.`<tablename>`.family | string | yes | Comma seperated column families of the hbase table `<tablename>`. It can be one or more than one
+hbase.`<tablename>`.`<columnfamily>`.columns | string | No | Required only if more than one column family are defined in previous configuration. Column names are comma seperated`. It can be one or more than one
 
 Example connector.properties file
 
@@ -44,11 +46,12 @@ tasks.max=1
 topics=test
 zookeeper.quorum=localhost:2181
 event.parser.class=io.svectors.hbase.parser.AvroEventParser
-hbase.test.rowkey.columns=id
-hbase.test.rowkey.delimiter=|
-hbase.test.family=c,d
-hbase.test.c.columns=c1,c2
-hbase.test.d.columns=d1,d2
+hbase.table.name=destTable
+hbase.destTable.rowkey.columns=id
+hbase.destTable.rowkey.delimiter=|
+hbase.destTable.family=c,d
+hbase.destTable.c.columns=c1,c2
+hbase.destTable.d.columns=d1,d2
 ```
 
 ## Packaging
@@ -82,7 +85,7 @@ nohup $CONFLUENT_HOME/bin/kafka-server-start $CONFLUENT_HOME/etc/kafka/server.pr
 nohup $CONFLUENT_HOME/bin/schema-registry-start $CONFLUENT_HOME/etc/schema-registry/schema-registry.properties &"
 ```
 
-* Create HBase table 'test' from hbase shell
+* Create HBase table 'destTable' from hbase shell
 
 * Start the hbase sink
 
@@ -102,8 +105,8 @@ $CONFLUENT_HOME/bin/kafka-avro-console-producer \
 
 ```bash
 #insert at prompt
-{"id": 1, "name": "foo"}
-{"id": 2, "name": "bar"}
+{"id": "1", "name": "foo"}
+{"id": "2", "name": "bar"}
 ```
 
 Same can be run with Apache Kafka scripts. 
@@ -123,4 +126,12 @@ Example data [with schema] :
  `{"firstName":"Jan","lastName":"Peter","email":"eric.cartman@southpark.com","age":10,"weightInKgs":40}`
  
 
+###Changes
 
+#####v1.0.1
+ - Earlier limitation "kafka topic and table name should be same" has been removed. Table name can be set using `hbase.table.name` property  
+ - Upgraded to Kafka 2.0.0 and Confluent 5.0.0
+#####v1.0.1
+ - Initial version  
+ 
+ 

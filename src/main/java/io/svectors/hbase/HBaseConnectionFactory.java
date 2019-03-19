@@ -21,9 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 
-/**
- * @author ravi.magham
- */
+
 public class HBaseConnectionFactory {
 
     private final Configuration configuration;

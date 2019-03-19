@@ -61,7 +61,7 @@ import java.util.function.Function;
 public class TestHbaseSinkTask {
 
     private final Function<Integer, String> TO_LOCAL_URI = (port) -> "localhost:" + port;
-    private final String hbaseTable = "test"; // using this interchangeably with kafka topic name.
+    private final String hbaseTable = "testTable1";  
     private final String columnFamily = "d";
     private final Map<String, String> configProps = new HashMap<>();
     private Configuration configuration;
@@ -73,10 +73,11 @@ public class TestHbaseSinkTask {
         configuration = getUtility().getConfiguration();
 
         //configure defaults for Sink task.
-        configProps.put("hbase.test.rowkey.columns", "id");
-        configProps.put("hbase.test.rowkey.delimiter", "|");
-        configProps.put("hbase.test.family", columnFamily);
-        configProps.put("topics", hbaseTable);
+        configProps.put("hbase.testTable1.rowkey.columns", "id");
+        configProps.put("hbase.testTable1.rowkey.delimiter", "|");
+        configProps.put("hbase.testTable1.family", columnFamily);
+        configProps.put("hbase.table.name", hbaseTable);
+        configProps.put("topics", "testTopic");
         configProps.put(HBaseSinkConfig.ZOOKEEPER_QUORUM_CONFIG, TO_LOCAL_URI.apply(getUtility().getZkCluster()
           .getClientPort()));
     }

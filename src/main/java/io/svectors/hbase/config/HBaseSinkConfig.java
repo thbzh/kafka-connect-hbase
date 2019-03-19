@@ -22,14 +22,11 @@ import io.svectors.hbase.parser.EventParser;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.connect.runtime.ConnectorConfig;
-import org.apache.kafka.connect.runtime.distributed.DistributedConfig;
+
 
 import java.util.Map;
 
-/**
- * @author ravi.magham
- */
+
 public class HBaseSinkConfig extends AbstractConfig {
 
 	public static final String ZOOKEEPER_QUORUM_CONFIG = "zookeeper.quorum";
@@ -37,6 +34,8 @@ public class HBaseSinkConfig extends AbstractConfig {
 	public static String DEFAULT_HBASE_ROWKEY_DELIMITER = ",";
 	public static String DEFAULT_HBASE_COLUMN_FAMILY = "d";
 	public static final String TOPIC_NAME = "topics";
+	public static final String TABLE_NAME = "hbase.table.name";
+	public static final String DEFAULT_TABLE_NAME = "testtable";
 	/*
 	 * The configuration for a table "test" will be in the format
 	 * hbase.test.rowkey.columns = id , ts hbase.test.rowkey.delimiter = |
@@ -46,6 +45,7 @@ public class HBaseSinkConfig extends AbstractConfig {
 	public static final String TABLE_COLUMN_FAMILY_TEMPLATE = "hbase.%s.family";
 	public static final String TABLE_COLUMN_FAMILY_COLUMNS_TEMPLATE = "hbase.%s.%s.columns";
 
+	
 	private static ConfigDef CONFIG = new ConfigDef();
 	private Map<String, String> properties;
 
@@ -57,6 +57,8 @@ public class HBaseSinkConfig extends AbstractConfig {
 		CONFIG.define(EVENT_PARSER_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH,
 				"Event parser class " + "to parse the SinkRecord");
 
+		CONFIG.define(TABLE_NAME, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH,
+				"HBase table Name " + "to store the sink records");
 	}
 
 	public HBaseSinkConfig(Map<String, String> originals) {
@@ -79,27 +81,37 @@ public class HBaseSinkConfig extends AbstractConfig {
 	public void validate() {
 		final String topicsAsStr = properties.get(TOPIC_NAME);
 		final String[] topics = topicsAsStr.split(",");
-		for (String topic : topics) {
-			String key = String.format(TABLE_ROWKEY_COLUMNS_TEMPLATE, topic);
-			if (!properties.containsKey(key)) {
-				throw new ConfigException(String.format(" No rowkey has been configured for table [%s]", key));
-			}
-			String columnFamilyTemplate = String.format(TABLE_COLUMN_FAMILY_TEMPLATE, topic);
-			String columnFamilies = properties.get(columnFamilyTemplate);
-			String[] cFArr = columnFamilies.split(",");
+		
+		if (!properties.containsKey(TOPIC_NAME)) {
+			throw new ConfigException(String.format("Topic mapping is missing.Please make sure to define [topics] in the properties.file "));
+		}
+		
+		if (!properties.containsKey(TABLE_NAME)) {
+			throw new ConfigException(String.format(" HBase Destination Table Name is missing. Please make sure to define [hbase.table.name] in the properties.file "));
+		}
+	
+		
+		final String tableName = properties.get(TABLE_NAME);
+		String key = String.format(TABLE_ROWKEY_COLUMNS_TEMPLATE, tableName);
+		
+		if (!properties.containsKey(key)) {
+			throw new ConfigException(String.format(" No rowkey has been configured for table [%s]", key));
+		}
+		
+		String columnFamilyTemplate = String.format(TABLE_COLUMN_FAMILY_TEMPLATE, tableName);
+		String columnFamilies = properties.get(columnFamilyTemplate);
+		String[] cFArr = columnFamilies.split(",");
 
-			// Validate if column mappings are defined for each column family. 
-			// Applicable only in case of multiple column families
-			if (cFArr.length > 1) {
-				for (String cf : cFArr) {
-					String columnsNameTemplate = String.format(TABLE_COLUMN_FAMILY_COLUMNS_TEMPLATE, topic, cf);
-					if (!properties.containsKey(columnsNameTemplate)) {
-						throw new ConfigException(
-								String.format("Column Mapping is missing for column family [%s]",cf));
-					}
+		// Validate if column mappings are defined for each column family. 
+		// Applicable only in case of multiple column families
+		if (cFArr.length > 1) {
+			for (String cf : cFArr) {
+				String columnsNameTemplate = String.format(TABLE_COLUMN_FAMILY_COLUMNS_TEMPLATE, tableName, cf);
+				if (!properties.containsKey(columnsNameTemplate)) {
+					throw new ConfigException(
+							String.format("Column Mapping is missing for column family [%s]",cf));
 				}
 			}
-
 		}
 	}
 
@@ -108,6 +120,7 @@ public class HBaseSinkConfig extends AbstractConfig {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public EventParser eventParser() {
 		try {
 			final String eventParserClass = getString(EVENT_PARSER_CONFIG);

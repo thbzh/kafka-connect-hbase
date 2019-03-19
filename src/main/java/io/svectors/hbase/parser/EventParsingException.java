@@ -17,14 +17,9 @@
  */
 package io.svectors.hbase.parser;
 
-/**
- * @author ravi.magham
- */
+
 public class EventParsingException extends RuntimeException {
 
-    /**
-	 *
-	 */
 	private static final long serialVersionUID = -5861884289109519422L;
 
 	public EventParsingException() {

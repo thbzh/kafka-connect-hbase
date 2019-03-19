@@ -25,9 +25,6 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import java.util.List;
 
-/**
- * @author ravi.magham
- */
 public final class HBaseClient {
 
     private final HBaseConnectionFactory connectionFactory;
