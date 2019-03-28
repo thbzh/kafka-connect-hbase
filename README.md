@@ -32,10 +32,10 @@ zookeeper.quorum | string | yes | Zookeeper quorum of the HBase cluster
 event.parser.class | string | yes | Can be either AvroEventParser or JsonEventParser to parse avro or json events respectively.
 topics | string | yes | list of kafka topics.
 hbase.table.name | string | yes | name of hbase table
-
-hbase.`<tablename>`.rowkey.columns | string | yes | The columns that represent the rowkey of the hbase table `<tablename>`
+hbase.`<tablename>`.rowkey.columns | string | yes | The columns that represent the rowkey of the hbase table `<tablename>` 
 hbase.`<tablename>`.family | string | yes | Comma seperated column families of the hbase table `<tablename>`. It can be one or more than one
 hbase.`<tablename>`.`<columnfamily>`.columns | string | No | Required only if more than one column family are defined in previous configuration. Column names are comma seperated`. It can be one or more than one
+
 
 Example connector.properties file
 
