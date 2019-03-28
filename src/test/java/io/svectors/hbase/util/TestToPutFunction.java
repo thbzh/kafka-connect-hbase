@@ -42,13 +42,16 @@ import java.util.Map;
 public class TestToPutFunction {
 	private final static JsonNodeFactory  jsonNodeFactory = JsonNodeFactory.instance;
 	private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final String hbaseTable = "testTable1"; 
 
     @Test
     public void testRowkey() {
         final Map<String, String> configProps = new HashMap<>();
         configProps.put(HBaseSinkConfig.ZOOKEEPER_QUORUM_CONFIG, "localhost");
-        configProps.put("hbase.test.rowkey.columns", "id");
-        configProps.put("hbase.test.d.columns", "d1,d2");
+        configProps.put(HBaseSinkConfig.TABLE_NAME, hbaseTable);
+        configProps.put("hbase.testTable1.rowkey.columns", "id");
+        configProps.put("hbase.testTable1.d.columns", "d1,d2");
+       
         configProps.put(HBaseSinkConfig.EVENT_PARSER_CONFIG, JsonEventParser.class.getName());
         final ToPutFunction toPutFunction = new ToPutFunction(new HBaseSinkConfig(configProps));
 
@@ -74,8 +77,10 @@ public class TestToPutFunction {
     public void testRowkeyWithoutValueSchema() {
         final Map<String, String> configProps = new HashMap<>();
         configProps.put(HBaseSinkConfig.ZOOKEEPER_QUORUM_CONFIG, "localhost");
-        configProps.put("hbase.test.rowkey.columns", "id");
-        configProps.put("hbase.test.d.columns", "d1,d2");
+        configProps.put(HBaseSinkConfig.TABLE_NAME, hbaseTable);
+        configProps.put("hbase.testTable1.rowkey.columns", "id");
+        configProps.put("hbase.testTable1.d.columns", "d1,d2");
+    
         configProps.put(HBaseSinkConfig.EVENT_PARSER_CONFIG, JsonEventParser.class.getName());
         final ToPutFunction toPutFunction = new ToPutFunction(new HBaseSinkConfig(configProps));
         final ObjectNode record = jsonNodeFactory.objectNode();

@@ -40,13 +40,11 @@ import java.util.Map;
 import io.svectors.hbase.config.HBaseSinkConfig;
 
 
-/**
- * @author ravi.magham
- */
 public class HBaseSinkTask extends SinkTask {
 
     private ToPutFunction toPutFunction;
     private HBaseClient hBaseClient;
+    private String hbaseTable;
 
     @Override
     public String version() {
@@ -65,6 +63,7 @@ public class HBaseSinkTask extends SinkTask {
         final HBaseConnectionFactory connectionFactory = new HBaseConnectionFactory(configuration);
         this.hBaseClient = new HBaseClient(connectionFactory);
         this.toPutFunction = new ToPutFunction(sinkConfig);
+        this.hbaseTable = sinkConfig.getString(HBaseSinkConfig.TABLE_NAME);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class HBaseSinkTask extends SinkTask {
                          (e) -> e.getValue().stream().map(sr -> toPutFunction.apply(sr)).collect(toList())));
 
         byTable.entrySet().parallelStream().forEach(entry -> {
-            hBaseClient.write(entry.getKey(), entry.getValue());
+            hBaseClient.write(this.hbaseTable, entry.getValue());
         });
     }
 

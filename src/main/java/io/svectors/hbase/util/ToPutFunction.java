@@ -58,7 +58,7 @@ public class ToPutFunction implements Function<SinkRecord, Put> {
 	@Override
 	public Put apply(final SinkRecord sinkRecord) {
 		Preconditions.checkNotNull(sinkRecord);
-		final String table = sinkRecord.topic();
+		final String table = getTableName();
 		final String columnFamily = columnFamily(table);
 		final String delimiter = rowkeyDelimiter(table);
 		String[] cfArr = columnFamily.split(",");
@@ -146,14 +146,13 @@ public class ToPutFunction implements Function<SinkRecord, Put> {
 	 * @return
 	 */
 	private List<String> columnMapping(final String columnFamily, final String table) {
-		System.out.println(columnFamily);
-		System.out.println(table);
+		
 		String columnsNameTemplate = String.format(HBaseSinkConfig.TABLE_COLUMN_FAMILY_COLUMNS_TEMPLATE, table,
 				columnFamily);
 		String columns = sinkConfig.getPropertyValue(columnsNameTemplate);
-		logger.info(columns);
+		
 		List<String> columnList = Stream.of(columns.split(",")).collect(Collectors.toList());
-		logger.info(columnList);
+		
 		return columnList;
 	}
 
@@ -179,4 +178,16 @@ public class ToPutFunction implements Function<SinkRecord, Put> {
 		}
 		return rowkey;
 	}
+	
+	/**
+	 * Get the Table Name as set in input config file
+	 * @return
+	 */
+	private String getTableName() {
+		final String entryValue = sinkConfig.getPropertyValue(HBaseSinkConfig.TABLE_NAME,
+				HBaseSinkConfig.DEFAULT_TABLE_NAME);
+		return entryValue;
+	}
+
+	
 }
