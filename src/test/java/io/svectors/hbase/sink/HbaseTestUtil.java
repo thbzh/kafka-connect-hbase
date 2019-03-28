@@ -49,6 +49,7 @@ public abstract class HbaseTestUtil {
         hbaseConf.setInt("replication.stats.thread.period.seconds", 5);
         hbaseConf.setLong("replication.sleep.before.failover", 2000);
         hbaseConf.setInt("replication.source.maxretriesmultiplier", 10);
+        hbaseConf.setLong("zookeeper.session.timeout",60000);
         return new HBaseTestingUtility(hbaseConf);
     }
 
