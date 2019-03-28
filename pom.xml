@@ -6,7 +6,7 @@
 
 	<groupId>io.svectors.connect</groupId>
 	<artifactId>kafka-connect-hbase</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<description>
        A Kafka Connect HBase connector for copying data between databases and Kafka.
     </description>

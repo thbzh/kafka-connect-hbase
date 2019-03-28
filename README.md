@@ -131,7 +131,9 @@ Example data [with schema] :
 #####v1.0.1
  - Earlier limitation "kafka topic and table name should be same" has been removed. Table name can be set using `hbase.table.name` property  
  - Upgraded to Kafka 2.0.0 and Confluent 5.0.0
-#####v1.0.1
- - Initial version  
+ 
+#####v1.0.0
+ - Initial version 
+ - Support with Kafka 1.0.0 and Confluent 4.0.0 
  
  
