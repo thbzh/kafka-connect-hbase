@@ -20,7 +20,7 @@ public class AvroEventParser implements EventParser {
     private final static AvroData avroData = new AvroData(100);
     private final Map<String, byte[]> EMPTY_MAP = Collections.emptyMap();
 
-  
+
     public AvroEventParser() {
     }
 
@@ -36,6 +36,7 @@ public class AvroEventParser implements EventParser {
 
     /**
      * parses the value.
+     *
      * @param schema
      * @param value
      * @return
@@ -58,8 +59,8 @@ public class AvroEventParser implements EventParser {
             }
             return values;
         } catch (Exception ex) {
-            final String errorMsg = String.format("Failed to parse the schema [%s] , value [%s] with ex [%s]" ,
-               schema, value, ex.getMessage());
+            final String errorMsg = String.format("Failed to parse the schema [%s] , value [%s] with ex [%s]",
+                    schema, value, ex.getMessage());
             throw new EventParsingException(errorMsg, ex);
         }
     }
@@ -69,25 +70,28 @@ public class AvroEventParser implements EventParser {
         final Schema.Type type = field.schema().type();
         final String fieldName = field.name();
         final Object fieldValue = record.get(fieldName);
+        if (fieldValue == null) {
+            return null;
+        }
         switch (type) {
             case STRING:
                 return Bytes.toBytes((String) fieldValue);
             case BOOLEAN:
-                return Bytes.toBytes((Boolean)fieldValue);
+                return Bytes.toBytes((Boolean) fieldValue);
             case BYTES:
                 return Bytes.toBytes((ByteBuffer) fieldValue);
             case FLOAT32:
-                return Bytes.toBytes((Float)fieldValue);
+                return Bytes.toBytes((Float) fieldValue);
             case FLOAT64:
-                return Bytes.toBytes((Double)fieldValue);
+                return Bytes.toBytes((Double) fieldValue);
             case INT8:
-                return Bytes.toBytes((Byte)fieldValue);
+                return Bytes.toBytes((Byte) fieldValue);
             case INT16:
-                return Bytes.toBytes((Short)fieldValue);
+                return Bytes.toBytes((Short) fieldValue);
             case INT32:
-                return Bytes.toBytes((Integer)fieldValue);
+                return Bytes.toBytes((Integer) fieldValue);
             case INT64:
-                return Bytes.toBytes((Long)fieldValue);
+                return Bytes.toBytes((Long) fieldValue);
             default:
                 return null;
         }
