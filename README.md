@@ -1,7 +1,7 @@
 # Kafka Connect for Hbase
 
 A Sink connector to write to HBase.  
-This is enhanced version of implementation available at https://github.com/mravi/hbase-connect-kafka
+This is enhanced version of implementation available at https://github.com/nishutayal/kafka-connect-hbase
 
 ## Features
 Sink supports:
