@@ -73,27 +73,52 @@ public class AvroEventParser implements EventParser {
         if (fieldValue == null) {
             return null;
         }
-        switch (type) {
-            case STRING:
-                return Bytes.toBytes((String) fieldValue);
-            case BOOLEAN:
-                return Bytes.toBytes((Boolean) fieldValue);
-            case BYTES:
-                return Bytes.toBytes((ByteBuffer) fieldValue);
-            case FLOAT32:
-                return Bytes.toBytes((Float) fieldValue);
-            case FLOAT64:
-                return Bytes.toBytes((Double) fieldValue);
-            case INT8:
-                return Bytes.toBytes((Byte) fieldValue);
-            case INT16:
-                return Bytes.toBytes((Short) fieldValue);
-            case INT32:
+
+        try {
+            switch (type) {
+                case STRING:
+                    return Bytes.toBytes((String) fieldValue);
+                case BOOLEAN:
+                    return Bytes.toBytes((Boolean) fieldValue);
+                case BYTES:
+                    return Bytes.toBytes((ByteBuffer) fieldValue);
+                case FLOAT32:
+                    return Bytes.toBytes((Float) fieldValue);
+                case FLOAT64:
+                    return Bytes.toBytes((Double) fieldValue);
+                case INT8:
+                    return Bytes.toBytes((Byte) fieldValue);
+                case INT16:
+                    return Bytes.toBytes((Short) fieldValue);
+                case INT32:
+                    return Bytes.toBytes((Integer) fieldValue);
+                case INT64:
+                    return Bytes.toBytes((Long) fieldValue);
+                default:
+                    return null;
+            }
+        } catch (ClassCastException ex) {
+            if (fieldValue instanceof Integer) {
                 return Bytes.toBytes((Integer) fieldValue);
-            case INT64:
-                return Bytes.toBytes((Long) fieldValue);
-            default:
+            } else if (fieldValue instanceof String) {
+                return Bytes.toBytes((String) fieldValue);
+            } else if (fieldValue instanceof Boolean) {
+                return Bytes.toBytes((Boolean) fieldValue);
+            } else if (fieldValue instanceof ByteBuffer) {
+                return Bytes.toBytes((ByteBuffer) fieldValue);
+            } else if (fieldValue instanceof Float) {
+                return Bytes.toBytes((Float) fieldValue);
+            } else if (fieldValue instanceof Double) {
+                return Bytes.toBytes((Double) fieldValue);
+            } else if (fieldValue instanceof Byte) {
+                return Bytes.toBytes((Byte) fieldValue);
+            } else if (fieldValue instanceof Short) {
+                return Bytes.toBytes((Byte) fieldValue);
+            } else if (fieldValue instanceof Long) {
+                return Bytes.toBytes((Byte) fieldValue);
+            } else {
                 return null;
+            }
         }
     }
 }
